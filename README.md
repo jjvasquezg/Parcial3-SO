@@ -36,3 +36,11 @@ En esta entrega se ha implementado lo siguiente:
 2. Para esta primera entrega se desarrollo la detección de argumentos en el main.cpp para saber si se va a manipular un directorio o un archivo ("file_manager.cpp"), también para saber si se debe comprimir o descomprimir, encriptar o desencriptar, además de identificar donde está y como se llama, y por último una clave para cuando sea necesaria.
 
 3. También se implemento el uso de ejecución concurrente mediante hilos en el archivo "thread_manager.cpp" para ejecutar concurrentemente la encriptación/descencriptación y la compresión/descompresión de los archivos/directorios.
+
+4. Ejemplos de ejecución:
+
+    - Ejecutar ```make build``` en /project
+    - Prueba con directorio:  
+      ```./bin/proyecto_os -i test/input/ -o test/output/ -c -e --comp-alg rle --enc-alg vigenere -k clave123```
+    - Prueba con archivo individual:
+      ```./bin/proyecto_os -i test/input/archivo.txt -o test/output/archivo.out -c -e --comp-alg rle --enc-alg vigenere -k clave123```
