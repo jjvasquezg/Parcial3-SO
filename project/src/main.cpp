@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include "../include/file_manager.h"
+#include "../include/thread_manager.h"
 
 void show_usage() {
     std::cout << "Uso: ./proyecto_os [opciones]\n\n"
@@ -70,9 +72,30 @@ int main(int argc, char* argv[]) {
     std::cout << "Ruta Entrada: " << cfg.input_path << "\n";
     std::cout << "Ruta Salida: " << cfg.output_path << "\n";
     std::cout << "Clave: " << (cfg.key.empty() ? "(ninguna)" : cfg.key) << "\n";
+    std::cout << "\n" << "=== Analisis de archivo/directorio ===\n";
+    try {
+        if (FileManager::is_directory(cfg.input_path)) {
+            std::cout << "Se ha leído el directorio: " << cfg.input_path << "\n";
+            auto files = FileManager::list_files(cfg.input_path);
 
-    // Aquí posteriormente llamaremos a los módulos de compresión/encriptación
-    // Ejemplo: process_file(cfg);
+            // Definimos la tarea que ejecutará cada hilo
+            auto task = [&](const std::string& file_path) {
+                auto data = FileManager::read_file(file_path);
+                std::cout << "[Hilo] Archivo: " << file_path << " -> Tamaño: " 
+                        << data.size() << " bytes\n";
+            };
+
+            // Procesar archivos concurrentemente
+            ThreadManager::process_files_concurrently(files, task);
+        } else {
+            std::cout << "Se ha leído el archivo: " << cfg.input_path << "\n";
+            auto data = FileManager::read_file(cfg.input_path);
+            std::cout << "Tamaño del archivo leído: " << data.size() << " bytes\n";
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << "\n";
+        return EXIT_FAILURE;
+    }
 
     return 0;
 }
