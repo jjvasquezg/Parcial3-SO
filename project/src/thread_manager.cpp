@@ -1,4 +1,4 @@
-#include "thread_manager.h"
+#include "../include/thread_manager.h"
 #include <iostream>
 
 void ThreadManager::process_files_concurrently(
