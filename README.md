@@ -1,9 +1,9 @@
-# RETO FINAL SISTEMAS OPERATIVOS
+# RETO FINAL SISTEMAS OPERATIVOS 2025-2
 
 ## INTEGRANTES
-Juan Jose Vasquez
-Sebastian Giraldo
-Santiago Alvarez
+Juan Jose Vasquez  
+Sebastian Giraldo  
+Santiago Alvarez  
 
 ## INTRODUCCIÓN
 
