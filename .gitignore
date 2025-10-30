@@ -1,0 +1,5 @@
+# Ignore object files
+*.o
+
+# Ignore all files in the bin directory
+project/bin/*       
