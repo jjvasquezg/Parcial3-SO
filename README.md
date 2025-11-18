@@ -282,9 +282,9 @@ Esto permite:
 
 ---
 
-# 9. Caso de Uso Válido
+## 9. Caso de Uso Válido
 
-## Escenario
+### Escenario
 
 Una empresa de producción audiovisual realiza grabaciones de campo diariamente. Cada jornada genera:
 
@@ -303,23 +303,23 @@ El equipo de archivo digital necesita:
 
 ---
 
-## Problema
+### Problema
 
-### 1. Confidencialidad
+#### 1. Confidencialidad
 Los archivos contienen material audiovisual sin publicar que podría filtrarse antes del estreno.  
 Esto representa un riesgo económico y legal para la compañía y sus clientes.
 
-### 2. Almacenamiento
+#### 2. Almacenamiento
 Los archivos de audio RAW y los paquetes de metadata ocupan varios gigabytes diarios.  
 Respaldarlos sin compresión resulta costoso y poco práctico.
 
-### 3. Automatización y tiempo
+#### 3. Automatización y tiempo
 El proceso de archivado debe realizarse al final de cada jornada con rapidez, evitando retrasos en la cadena de producción.  
 El proceso requiere procesar docenas o cientos de archivos, por lo que la **concurrencia** es esencial.
 
 ---
 
-## Solución usando la herramienta GSEA
+### Solución usando la herramienta GSEA
 
 El equipo automatiza el archivado mediante un script nocturno que ejecuta GSEA sobre los directorios del día:
 
@@ -334,9 +334,9 @@ Este comando se ejecuta automáticamente al final de cada jornada como parte del
 
 ---
 
-## Explicación de la solución
+### Explicación de la solución
 
-### Compresión (RLE)
+#### Compresión (RLE)
 
 Los archivos de audio RAW y metadata contienen:
 
@@ -348,7 +348,7 @@ RLE permite reducir su tamaño sin pérdida y con un consumo ínfimo de CPU, lo 
 
 ---
 
-### Encriptación (Vigenère extendido a bytes)
+#### Encriptación (Vigenère extendido a bytes)
 
 Después de comprimir, GSEA cifra los datos mediante un esquema simétrico ligero.  
 Esto garantiza que:
@@ -361,7 +361,7 @@ Es una solución simple, efectiva y completamente adecuada para un entorno acad�
 
 ---
 
-### Concurrencia
+#### Concurrencia
 
 Cada archivo en la carpeta del día se procesa en su propio hilo, permitiendo:
 
@@ -373,7 +373,7 @@ Si un rodaje genera 80 archivos de audio y metadata, GSEA crea **80 hilos simult
 
 ---
 
-## Resultado
+### Resultado
 
 - Todo el material del día queda comprimido y cifrado en archivos `.rle.enc`.
 - El proceso se completa de forma rápida gracias al paralelismo.
@@ -415,3 +415,4 @@ Proyecto desarrollado como parte de un curso de **Sistemas Operativos**, con el 
 - Implementación manual de algoritmos de compresión y encriptación.
 
 - Diseño modular en C++.
+
