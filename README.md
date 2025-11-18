@@ -282,7 +282,107 @@ Esto permite:
 
 ---
 
-## 9. Limitaciones Conocidas
+# 9. Caso de Uso Válido
+
+## Escenario
+
+Una empresa de producción audiovisual realiza grabaciones de campo diariamente. Cada jornada genera:
+
+- Decenas de archivos de audio sin procesar (RAW),
+- Múltiples versiones de guiones, notas de rodaje y metadata,
+- Capturas de telemetría de cámaras y micrófonos.
+
+Muchos de estos archivos contienen **secuencias repetitivas** propias del ruido ambiente, silencio digital o metadata redundante.  
+Además, el material de rodaje es **estrictamente confidencial**, ya que pertenece a clientes privados y contiene contenido aún no lanzado.
+
+El equipo de archivo digital necesita:
+
+- Reducir el tamaño del material crudo para acelerar su envío y almacenamiento.
+- Proteger todos los archivos antes de subirlos a la nube.
+- Procesar lotes enteros de carpetas al final de cada jornada sin intervención manual.
+
+---
+
+## Problema
+
+### 1. Confidencialidad
+Los archivos contienen material audiovisual sin publicar que podría filtrarse antes del estreno.  
+Esto representa un riesgo económico y legal para la compañía y sus clientes.
+
+### 2. Almacenamiento
+Los archivos de audio RAW y los paquetes de metadata ocupan varios gigabytes diarios.  
+Respaldarlos sin compresión resulta costoso y poco práctico.
+
+### 3. Automatización y tiempo
+El proceso de archivado debe realizarse al final de cada jornada con rapidez, evitando retrasos en la cadena de producción.  
+El proceso requiere procesar docenas o cientos de archivos, por lo que la **concurrencia** es esencial.
+
+---
+
+## Solución usando la herramienta GSEA
+
+El equipo automatiza el archivado mediante un script nocturno que ejecuta GSEA sobre los directorios del día:
+
+```
+./proyecto_os -c -e --comp-alg rle --enc-alg vigenere \
+-i "./Rodaje/2025-11-01/" \
+-o "./BackupSeguro/2025-11-01/" \
+-k "Cl4v3Audi0Pr0!"
+```
+
+Este comando se ejecuta automáticamente al final de cada jornada como parte del pipeline de post–producción.
+
+---
+
+## Explicación de la solución
+
+### Compresión (RLE)
+
+Los archivos de audio RAW y metadata contienen:
+
+- Largos tramos de silencio digital (bytes repetidos con el mismo valor),
+- Bloques de información estructurada repetitiva,
+- Patrones sencillos que se benefician de la codificación por conteo.
+
+RLE permite reducir su tamaño sin pérdida y con un consumo ínfimo de CPU, lo que resulta ideal para procesar lotes grandes en poco tiempo.
+
+---
+
+### Encriptación (Vigenère extendido a bytes)
+
+Después de comprimir, GSEA cifra los datos mediante un esquema simétrico ligero.  
+Esto garantiza que:
+
+- ningún archivo pueda ser escuchado o abierto sin la clave,
+- se proteja el contenido del rodaje en tránsito y durante el almacenamiento,
+- se cumplan políticas internas de seguridad.
+
+Es una solución simple, efectiva y completamente adecuada para un entorno académico o corporativo controlado.
+
+---
+
+### Concurrencia
+
+Cada archivo en la carpeta del día se procesa en su propio hilo, permitiendo:
+
+- Aprovechar todos los núcleos del sistema,
+- Disminuir enormemente el tiempo total de archivado,
+- Evitar cuellos de botella en el pipeline de postproducción.
+
+Si un rodaje genera 80 archivos de audio y metadata, GSEA crea **80 hilos simultáneos** y procesa el lote en una fracción del tiempo requerido por una herramienta secuencial.
+
+---
+
+## Resultado
+
+- Todo el material del día queda comprimido y cifrado en archivos `.rle.enc`.
+- El proceso se completa de forma rápida gracias al paralelismo.
+- La empresa reduce costes de almacenamiento y evita filtraciones de contenido sin publicar.
+- El pipeline de postproducción opera automáticamente sin intervención humana.
+
+Este caso demuestra cómo GSEA puede integrarse fácilmente en entornos que manejan grandes volúmenes de datos sensibles, proporcionando compresión, seguridad y concurrencia de manera eficiente.
+
+## 10. Limitaciones Conocidas
 
 - El algoritmo **RLE** no es eficiente para datos con poca redundancia (puede aumentar el tamaño).
 - No se implementa detección de tipo de archivo ni heurísticas avanzadas de compresión.
@@ -291,7 +391,7 @@ Esto permite:
 
 ---
 
-## 10. Posibles Mejoras Futuras
+## 11. Posibles Mejoras Futuras
 
 - Implementar otros algoritmos de compresión:
   - Huffman.
@@ -306,11 +406,12 @@ Esto permite:
 
 ---
 
-## 11. Créditos
+## 12. Créditos
 
 Proyecto desarrollado como parte de un curso de **Sistemas Operativos**, con el objetivo de practicar:
 
 - Llamadas al sistema.
 - Concurrencia con hilos.
 - Implementación manual de algoritmos de compresión y encriptación.
+
 - Diseño modular en C++.
