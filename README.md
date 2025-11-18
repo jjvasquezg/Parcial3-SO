@@ -319,69 +319,6 @@ El proceso requiere procesar docenas o cientos de archivos, por lo que la **conc
 
 ---
 
-### Solución usando la herramienta GSEA
-
-El equipo automatiza el archivado mediante un script nocturno que ejecuta GSEA sobre los directorios del día:
-
-```
-./proyecto_os -c -e --comp-alg rle --enc-alg vigenere \
--i "./Rodaje/2025-11-01/" \
--o "./BackupSeguro/2025-11-01/" \
--k "Cl4v3Audi0Pr0!"
-```
-
-Este comando se ejecuta automáticamente al final de cada jornada como parte del pipeline de post–producción.
-
----
-
-### Explicación de la solución
-
-#### Compresión (RLE)
-
-Los archivos de audio RAW y metadata contienen:
-
-- Largos tramos de silencio digital (bytes repetidos con el mismo valor),
-- Bloques de información estructurada repetitiva,
-- Patrones sencillos que se benefician de la codificación por conteo.
-
-RLE permite reducir su tamaño sin pérdida y con un consumo ínfimo de CPU, lo que resulta ideal para procesar lotes grandes en poco tiempo.
-
----
-
-#### Encriptación (Vigenère extendido a bytes)
-
-Después de comprimir, GSEA cifra los datos mediante un esquema simétrico ligero.  
-Esto garantiza que:
-
-- ningún archivo pueda ser escuchado o abierto sin la clave,
-- se proteja el contenido del rodaje en tránsito y durante el almacenamiento,
-- se cumplan políticas internas de seguridad.
-
-Es una solución simple, efectiva y completamente adecuada para un entorno académico o corporativo controlado.
-
----
-
-#### Concurrencia
-
-Cada archivo en la carpeta del día se procesa en su propio hilo, permitiendo:
-
-- Aprovechar todos los núcleos del sistema,
-- Disminuir enormemente el tiempo total de archivado,
-- Evitar cuellos de botella en el pipeline de postproducción.
-
-Si un rodaje genera 80 archivos de audio y metadata, GSEA crea **80 hilos simultáneos** y procesa el lote en una fracción del tiempo requerido por una herramienta secuencial.
-
----
-
-### Resultado
-
-- Todo el material del día queda comprimido y cifrado en archivos `.rle.enc`.
-- El proceso se completa de forma rápida gracias al paralelismo.
-- La empresa reduce costes de almacenamiento y evita filtraciones de contenido sin publicar.
-- El pipeline de postproducción opera automáticamente sin intervención humana.
-
-Este caso demuestra cómo GSEA puede integrarse fácilmente en entornos que manejan grandes volúmenes de datos sensibles, proporcionando compresión, seguridad y concurrencia de manera eficiente.
-
 ## 10. Limitaciones Conocidas
 
 - El algoritmo **RLE** no es eficiente para datos con poca redundancia (puede aumentar el tamaño).
@@ -415,4 +352,5 @@ Proyecto desarrollado como parte de un curso de **Sistemas Operativos**, con el 
 - Implementación manual de algoritmos de compresión y encriptación.
 
 - Diseño modular en C++.
+
 
