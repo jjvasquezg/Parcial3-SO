@@ -75,63 +75,66 @@ int main(int argc, char* argv[]) {
     std::cout << "Ruta Salida: " << cfg.output_path << "\n";
     std::cout << "Clave: " << (cfg.key.empty() ? "(ninguna)" : cfg.key) << "\n";
     std::cout << "\n" << "=== Analisis de archivo/directorio ===\n";
+
     try {
+        // ---- Definimos la tarea común para archivo/directorio ----
+        auto task = [&](const std::string& file_path) {
+            auto data = FileManager::read_file(file_path);
+            std::cout << "[Hilo] Archivo: " << file_path << " -> Leído " 
+                      << data.size() << " bytes\n";
+
+            std::vector<char> processed = data;
+
+            // ---- COMPRESIÓN ----
+            if (cfg.compress && cfg.comp_alg == "rle") {
+                processed = Compressor::rle_compress(processed);
+                std::cout << "[Hilo] -> Comprimido: " << processed.size() << " bytes\n";
+            }
+
+            // ---- ENCRIPTACIÓN ----
+            if (cfg.encrypt && cfg.enc_alg == "vigenere") {
+                processed = Encryptor::vigenere_encrypt(processed, cfg.key);
+                std::cout << "[Hilo] -> Encriptado con clave '" << cfg.key << "'\n";
+            }
+
+            // ---- DESENCRIPTACIÓN ----
+            if (cfg.decrypt && cfg.enc_alg == "vigenere") {
+                processed = Encryptor::vigenere_decrypt(processed, cfg.key);
+                std::cout << "[Hilo] -> Desencriptado con clave '" << cfg.key << "'\n";
+            }
+
+            // ---- DESCOMPRESIÓN ----
+            if (cfg.decompress && cfg.comp_alg == "rle") {
+                processed = Compressor::rle_decompress(processed);
+                std::cout << "[Hilo] -> Descomprimido: " << processed.size() << " bytes\n";
+            }
+
+            // ---- SALIDA ----
+            std::string base_name = file_path.substr(file_path.find_last_of('/') + 1);
+            std::string out_name = cfg.output_path + "/" + base_name;
+
+            if (cfg.compress)    out_name += ".rle";
+            if (cfg.encrypt)     out_name += ".enc";
+            if (cfg.decompress)  out_name += "_decompressed";
+            if (cfg.decrypt)     out_name += "_decrypted";
+
+            FileManager::write_file(out_name, processed);
+            std::cout << "[Hilo] -> Guardado: " << out_name << "\n";
+        };
+
+        // ---- Directorio vs archivo único ----
         if (FileManager::is_directory(cfg.input_path)) {
             std::cout << "Se ha leído el directorio: " << cfg.input_path << "\n";
             auto files = FileManager::list_files(cfg.input_path);
-
-            // Definimos la tarea que ejecutará cada hilo
-            auto task = [&](const std::string& file_path) {
-                auto data = FileManager::read_file(file_path);
-                std::cout << "[Hilo] Archivo: " << file_path << " -> Leído " 
-                        << data.size() << " bytes\n";
-
-                std::vector<char> processed = data;
-
-                // ---- COMPRESIÓN ----
-                if (cfg.compress && cfg.comp_alg == "rle") {
-                    processed = Compressor::rle_compress(processed);
-                    std::cout << "[Hilo] -> Comprimido: " << processed.size() << " bytes\n";
-                }
-
-                // ---- ENCRIPTACIÓN ----
-                if (cfg.encrypt && cfg.enc_alg == "vigenere") {
-                    processed = Encryptor::vigenere_encrypt(processed, cfg.key);
-                    std::cout << "[Hilo] -> Encriptado con clave '" << cfg.key << "'\n";
-                }
-
-                // ---- DESENCRIPTACIÓN ----
-                if (cfg.decrypt && cfg.enc_alg == "vigenere") {
-                    processed = Encryptor::vigenere_decrypt(processed, cfg.key);
-                    std::cout << "[Hilo] -> Desencriptado con clave '" << cfg.key << "'\n";
-                }
-
-                // ---- DESCOMPRESIÓN ----
-                if (cfg.decompress && cfg.comp_alg == "rle") {
-                    processed = Compressor::rle_decompress(processed);
-                    std::cout << "[Hilo] -> Descomprimido: " << processed.size() << " bytes\n";
-                }
-
-                // ---- SALIDA ----
-                std::string base_name = file_path.substr(file_path.find_last_of('/') + 1);
-                std::string out_name = cfg.output_path + "/" + base_name;
-
-                if (cfg.compress) out_name += ".rle";
-                if (cfg.encrypt) out_name += ".enc";
-                if (cfg.decompress) out_name += "_decompressed";
-                if (cfg.decrypt) out_name += "_decrypted";
-
-                FileManager::write_file(out_name, processed);
-                std::cout << "[Hilo] -> Guardado: " << out_name << "\n";
-            };
 
             // Procesar archivos concurrentemente
             ThreadManager::process_files_concurrently(files, task);
         } else {
             std::cout << "Se ha leído el archivo: " << cfg.input_path << "\n";
-            auto data = FileManager::read_file(cfg.input_path);
-            std::cout << "Tamaño del archivo leído: " << data.size() << " bytes\n";
+            // Procesar solo este archivo, sin hilos adicionales
+            task(cfg.input_path);
         }
+
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n";
         return EXIT_FAILURE;
@@ -139,3 +142,4 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+
