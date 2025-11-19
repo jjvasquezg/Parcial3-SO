@@ -5,7 +5,7 @@ Juan Jose Vasquez
 Sebastian Giraldo  
 Santiago Alvarez
 
-## Link video demostrativo: https://drive.google.com/file/d/1WYk9RLqfTV_UrHCJ1G-mMpHRDdUEg6-s/view?usp=sharing
+## Link video demostrativo: [Video](https://drive.google.com/file/d/1WYk9RLqfTV_UrHCJ1G-mMpHRDdUEg6-s/view?usp=sharing)
 
 # Utilidad de Compresión y Encriptación Concurrente (C++ / POSIX)
 
@@ -354,6 +354,7 @@ Proyecto desarrollado como parte de un curso de **Sistemas Operativos**, con el 
 - Implementación manual de algoritmos de compresión y encriptación.
 
 - Diseño modular en C++.
+
 
 
 
